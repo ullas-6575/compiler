@@ -1,0 +1,77 @@
+#  Roll: 2207086
+
+
+/*
+   Multi-line comment test.
+*/
+
+# 1. Data types and variable declaration
+
+dhoro naam = "ullas"$
+dhoro bochor = sankhya("2026")$
+dhoro dam = doshomik("49.5")$
+dhoro khola = satya$
+dhoro bondho = mithya$
+dhoro বয়স = lekha(21)$
+dhoro flag = jukti(1)$
+
+# 2. Array with numbers
+dhoro marks = [80, 90, 85, 70, 86]$
+dekho(marks[0])$
+dekho(len(marks))$
+
+# 3. Function definition and return
+def jodo(a, b):
+    ret a + b$
+;
+
+# 4. Arithmetic and function call
+
+dhoro total = jodo(10, 5)$
+dekho(total)$
+
+# 5. If /  else with comparison and logical operators
+
+yadi (total == 30):
+    dekho("Recipe thik ache!")$
+;
+nahole_yadi (total >= 10 or total <= 5):
+    dekho("Range check passed")$
+;
+nahole:
+    dekho("Kichu bhul hoyeche")$
+;
+
+#take user input 
+dhoro price = doshomik(0)$
+dekho("Enter price:")$
+cin(price)$
+dekho(price)$
+
+# 6. While loop
+dhoro pani = 3$
+jotokkhon (pani > 0):
+    dekho("Pani garam hocche...")$
+    pani = pani - 1$
+;
+
+# 7. for loop
+dhoro ledger = 0$
+loop(i, 0, 5):
+    ledger = ledger + i$
+;
+dekho(ledger)$
+
+# 8. Numeric array and library functions
+dhoro nums = [40, 10, 30]$
+push_back(nums, 20)$
+sort(nums)$
+dekho(nums[0])$
+dhoro pos = binary_search(nums, 30)$
+dekho(len(nums))$
+
+dhoro greeting = "hello ullas"$
+dekho(replace(greeting, "ullas", "santu"))$
+
+# error symbol test (should be reported by the lexer)
+dhoro test = 5 @ 3$
