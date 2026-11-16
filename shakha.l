@@ -1,8 +1,8 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-
-int line_no = 1;
+#include "shakha.tab.h"
 
 int keyword_count = 0;
 int datatype_count = 0;
@@ -15,323 +15,346 @@ int comment_count = 0;
 int symbol_count = 0;
 %}
 
+%option yylineno
+%option noyywrap
+
 %%
 
 \n {
-    line_no++;
 }
 
 "#"[^\n]* {
-    fprintf(yyout, "COMMENT DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "COMMENT DETECTED - LINE %d\n", yylineno);
     comment_count++;
 }
+
 "/*"([^*]|\*+[^*/])*\*+"/" {
-    fprintf(yyout, "MULTI-LINE COMMENT DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "MULTI-LINE COMMENT DETECTED - LINE %d\n", yylineno);
     comment_count++;
+}
 
- for (int i = 0; yytext[i] != '\0'; i++) {
-        if (yytext[i] == '\n')
-            line_no++;
-    }
-   }
-
- /* error : no closing */ 
+/* Matches only when there is no closing */
 "/*" {
-    fprintf(yyout, "UNTERMINATED COMMENT - LINE %d\n", line_no);
+    fprintf(yyout, "UNTERMINATED COMMENT - LINE %d\n", yylineno);
     symbol_count++;
 }
+
 "dhoro" {
-    fprintf(yyout, "VARIABLE DECLARATION DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "VARIABLE DECLARATION DETECTED - LINE %d\n", yylineno);
     keyword_count++;
+    return DHORO;
 }
 
 "def" {
-    fprintf(yyout, "FUNCTION DEFINITION DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "FUNCTION DEFINITION DETECTED - LINE %d\n", yylineno);
     function_count++;
+    return DEF;
 }
 
 "ret" {
-    fprintf(yyout, "RETURN STATEMENT DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "RETURN STATEMENT DETECTED - LINE %d\n", yylineno);
     function_count++;
+    return RET;
 }
 
 "yadi" {
-    fprintf(yyout, "IF CONDITION DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "IF CONDITION DETECTED - LINE %d\n", yylineno);
     control_count++;
+    return YADI;
 }
+
 "nahole_yadi" {
-    fprintf(yyout, "ELSE-IF CONDITION DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "ELSE-IF CONDITION DETECTED - LINE %d\n", yylineno);
     control_count++;
+    return NAHOLE_YADI;
 }
 
 "nahole" {
-    fprintf(yyout, "ELSE CONDITION DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "ELSE CONDITION DETECTED - LINE %d\n", yylineno);
     control_count++;
+    return NAHOLE;
 }
 
 "jotokkhon" {
-    fprintf(yyout, "WHILE LOOP DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "WHILE LOOP DETECTED - LINE %d\n", yylineno);
     control_count++;
+    return JOTOKKHON;
 }
 
 "loop" {
-    fprintf(yyout, "FOR LOOP DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "FOR LOOP DETECTED - LINE %d\n", yylineno);
     control_count++;
+    return LOOP;
 }
 
 "dekho" {
-    fprintf(yyout, "OUTPUT FUNCTION DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "OUTPUT FUNCTION DETECTED - LINE %d\n", yylineno);
     function_count++;
-}
-
-"cin" {
-    fprintf(yyout, "INPUT FUNCTION DETECTED: cin - LINE %d\n", line_no);
-    function_count++;
+    return DEKHO;
 }
 
 "satya" {
-    fprintf(yyout, "TRUE VALUE DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "TRUE VALUE DETECTED - LINE %d\n", yylineno);
     keyword_count++;
+    return SATYA;
 }
 
 "mithya" {
-    fprintf(yyout, "FALSE VALUE DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "FALSE VALUE DETECTED - LINE %d\n", yylineno);
     keyword_count++;
+    return MITHYA;
 }
 
 "and" {
-    fprintf(yyout, "LOGICAL AND OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "LOGICAL AND OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return AND;
 }
 
 "or" {
-    fprintf(yyout, "LOGICAL OR OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "LOGICAL OR OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return OR;
 }
 
 "not" {
-    fprintf(yyout, "LOGICAL NOT OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "LOGICAL NOT OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return NOT;
 }
 
 "sankhya" {
-    fprintf(yyout, "INTEGER DATA TYPE DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "INTEGER DATA TYPE DETECTED - LINE %d\n", yylineno);
     datatype_count++;
+    return TY_INT;
 }
 
 "doshomik" {
-    fprintf(yyout, "FLOAT DATA TYPE DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "FLOAT DATA TYPE DETECTED - LINE %d\n", yylineno);
     datatype_count++;
+    return TY_FLT;
 }
 
 "lekha" {
-    fprintf(yyout, "STRING DATA TYPE DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "STRING DATA TYPE DETECTED - LINE %d\n", yylineno);
     datatype_count++;
+    return TY_STR;
 }
 
 "jukti" {
-    fprintf(yyout, "BOOLEAN DATA TYPE DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "BOOLEAN DATA TYPE DETECTED - LINE %d\n", yylineno);
     datatype_count++;
+    return TY_BOOL;
 }
 
 "talika" {
-    fprintf(yyout, "ARRAY DATA TYPE DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "ARRAY DATA TYPE DETECTED - LINE %d\n", yylineno);
     datatype_count++;
+    return TY_ARR;
 }
 
 "sort" {
-    fprintf(yyout, "LIBRARY FUNCTION DETECTED: sort - LINE %d\n", line_no);
+    fprintf(yyout, "LIBRARY FUNCTION DETECTED: sort - LINE %d\n", yylineno);
     function_count++;
+    yylval.sval = strdup(yytext);
+    return IDENT;
 }
 
 "push_back" {
-    fprintf(yyout, "LIBRARY FUNCTION DETECTED: push_back - LINE %d\n", line_no);
+    fprintf(yyout, "LIBRARY FUNCTION DETECTED: push_back - LINE %d\n", yylineno);
     function_count++;
+    yylval.sval = strdup(yytext);
+    return IDENT;
 }
 
 "binary_search" {
-    fprintf(yyout, "LIBRARY FUNCTION DETECTED: binary_search - LINE %d\n", line_no);
+    fprintf(yyout, "LIBRARY FUNCTION DETECTED: binary_search - LINE %d\n", yylineno);
     function_count++;
+    yylval.sval = strdup(yytext);
+    return IDENT;
 }
 
 "replace" {
-    fprintf(yyout, "LIBRARY FUNCTION DETECTED: replace - LINE %d\n", line_no);
+    fprintf(yyout, "LIBRARY FUNCTION DETECTED: replace - LINE %d\n", yylineno);
     function_count++;
+    yylval.sval = strdup(yytext);
+    return IDENT;
 }
 
 "len" {
-    fprintf(yyout, "LIBRARY FUNCTION DETECTED: len - LINE %d\n", line_no);
+    fprintf(yyout, "LIBRARY FUNCTION DETECTED: len - LINE %d\n", yylineno);
     function_count++;
+    yylval.sval = strdup(yytext);
+    return IDENT;
 }
 
 "==" {
-    fprintf(yyout, "EQUAL OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "EQUAL OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return EQ;
 }
 
 "!=" {
-    fprintf(yyout, "NOT EQUAL OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "NOT EQUAL OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return NE;
 }
 
 "<=" {
-    fprintf(yyout, "LESS OR EQUAL OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "LESS OR EQUAL OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return LE;
 }
 
 ">=" {
-    fprintf(yyout, "GREATER OR EQUAL OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "GREATER OR EQUAL OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return GE;
 }
 
 "+" {
-    fprintf(yyout, "ADDITION OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "ADDITION OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return '+';
 }
 
 "-" {
-    fprintf(yyout, "SUBTRACTION OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "SUBTRACTION OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return '-';
 }
 
 "*" {
-    fprintf(yyout, "MULTIPLICATION OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "MULTIPLICATION OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return '*';
 }
 
 "/" {
-    fprintf(yyout, "DIVISION OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "DIVISION OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return '/';
 }
 
 "%" {
-    fprintf(yyout, "MODULO OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "MODULO OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return '%';
 }
 
 "<" {
-    fprintf(yyout, "LESS THAN OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "LESS THAN OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return '<';
 }
 
 ">" {
-    fprintf(yyout, "GREATER THAN OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "GREATER THAN OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return '>';
 }
 
 "=" {
-    fprintf(yyout, "ASSIGNMENT OPERATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "ASSIGNMENT OPERATOR DETECTED - LINE %d\n", yylineno);
     operator_count++;
+    return '=';
 }
 
 [0-9]+\.[0-9]+ {
-    fprintf(yyout, "FLOAT LITERAL DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "FLOAT LITERAL DETECTED - LINE %d\n", yylineno);
     literal_count++;
+    yylval.fval = atof(yytext);
+    return FLOAT_LIT;
 }
 
 [0-9]+ {
-    fprintf(yyout, "INTEGER LITERAL DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "INTEGER LITERAL DETECTED - LINE %d\n", yylineno);
     literal_count++;
+    yylval.ival = atol(yytext);
+    return INT_LIT;
 }
 
 \"[^\"\n]*\" {
-    fprintf(yyout, "STRING LITERAL DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "STRING LITERAL DETECTED - LINE %d\n", yylineno);
     literal_count++;
+    yylval.sval = strdup(yytext);
+    return STRING_LIT;
 }
 
 [A-Za-z_\200-\377][A-Za-z0-9_\200-\377]* {
-    fprintf(yyout, "IDENTIFIER DETECTED: %s - LINE %d\n", yytext, line_no);
+    fprintf(yyout, "IDENTIFIER DETECTED: %s - LINE %d\n", yytext, yylineno);
     userdefined_count++;
+    yylval.sval = strdup(yytext);
+    return IDENT;
 }
 
 "$" {
-    fprintf(yyout, "STATEMENT TERMINATOR DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "STATEMENT TERMINATOR DETECTED - LINE %d\n", yylineno);
     symbol_count++;
+    return '$';
 }
 
 ":" {
-    fprintf(yyout, "BLOCK START (COLON) DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "BLOCK START (COLON) DETECTED - LINE %d\n", yylineno);
     symbol_count++;
+    return ':';
 }
 
 ";" {
-    fprintf(yyout, "BLOCK END (SEMICOLON) DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "BLOCK END (SEMICOLON) DETECTED - LINE %d\n", yylineno);
     symbol_count++;
+    return ';';
 }
 
 "(" {
-    fprintf(yyout, "LEFT PARENTHESIS DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "LEFT PARENTHESIS DETECTED - LINE %d\n", yylineno);
     symbol_count++;
+    return '(';
 }
 
 ")" {
-    fprintf(yyout, "RIGHT PARENTHESIS DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "RIGHT PARENTHESIS DETECTED - LINE %d\n", yylineno);
     symbol_count++;
+    return ')';
 }
 
 "[" {
-    fprintf(yyout, "LEFT BRACKET DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "LEFT BRACKET DETECTED - LINE %d\n", yylineno);
     symbol_count++;
+    return '[';
 }
 
 "]" {
-    fprintf(yyout, "RIGHT BRACKET DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "RIGHT BRACKET DETECTED - LINE %d\n", yylineno);
     symbol_count++;
+    return ']';
 }
 
 "," {
-    fprintf(yyout, "COMMA DETECTED - LINE %d\n", line_no);
+    fprintf(yyout, "COMMA DETECTED - LINE %d\n", yylineno);
     symbol_count++;
+    return ',';
 }
 
 [ \t\r]+ {
 }
 
 . {
-    fprintf(yyout, "UNKNOWN SYMBOL '%s' - LINE %d\n", yytext, line_no);
+    fprintf(yyout, "UNKNOWN SYMBOL '%s' - LINE %d\n", yytext, yylineno);
 }
 
 %%
 
-int yywrap()
-{
-    return 1;
-}
-
-int main()
-{
-    yyin = fopen("input.txt", "r");
-    yyout = fopen("output.txt", "w");
-
-    if (yyin == NULL) {
-        printf("Cannot open input.txt\n");
-        return 1;
-    }
-
-    if (yyout == NULL) {
-        printf("Cannot create output.txt\n");
-        fclose(yyin);
-        return 1;
-    }
-
-    yylex();
-
-    fprintf(yyout, "\nTOKEN SUMMARY\n");
-    fprintf(yyout, "Keywords              : %d\n", keyword_count);
-    fprintf(yyout, "Data Types            : %d\n", datatype_count);
-    fprintf(yyout, "Operators             : %d\n", operator_count);
-    fprintf(yyout, "Control Statements    : %d\n", control_count);
-    fprintf(yyout, "Functions             : %d\n", function_count);
-    fprintf(yyout, "User Defined/IDs      : %d\n", userdefined_count);
-    fprintf(yyout, "Literals              : %d\n", literal_count);
-    fprintf(yyout, "Comments              : %d\n", comment_count);
-    fprintf(yyout, "Symbols               : %d\n", symbol_count);
-
-    fclose(yyin);
-    fclose(yyout);
-
-    printf("Lexical analysis completed.\n");
-    printf("Results stored in output.txt\n");
-
-    return 0;
+/* Called by main() in shakha.y after parsing */
+void print_token_summary(FILE *f) {
+    fprintf(f, "\nTOKEN SUMMARY\n");
+    fprintf(f, "Keywords              : %d\n", keyword_count);
+    fprintf(f, "Data Types            : %d\n", datatype_count);
+    fprintf(f, "Operators             : %d\n", operator_count);
+    fprintf(f, "Control Statements    : %d\n", control_count);
+    fprintf(f, "Functions             : %d\n", function_count);
+    fprintf(f, "User Defined/IDs      : %d\n", userdefined_count);
+    fprintf(f, "Literals              : %d\n", literal_count);
+    fprintf(f, "Comments              : %d\n", comment_count);
+    fprintf(f, "Symbols               : %d\n", symbol_count);
 }
